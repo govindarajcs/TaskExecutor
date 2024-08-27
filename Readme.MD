@@ -8,16 +8,20 @@
 <ol> 
    <li>Order of job submission to execution should be preserved</li>
    <li>Read and display the result as soon as it is available</li>
-   <li>Tasks from same group should not run concurrently</li>   
+   <li>Tasks from same group should not run concurrently</li> 
+   <li>Task submission should not block the submitter </li>  
 </ol>
 
 
 <h2>Assumptions</h2>
 
 <ol>
-	<li>In the TaskGroup class, created an instance variable of type Semaphore with concurrent access to critical section of the code set to 1. This variable is is used to avoid concurrent access of the 2 threads from same group </li>
-	<li>In the Driver class where the task is getting submitted, a static variable of type Queue is defined. This queue is to store the Future object of submitted tasks.</li>
-	<li>The tasks submitted will be added to the blocking queue for polling.</li>
-	<li>A runnable thread is created to monitor the status of the submitted job one-by-one and if completed then remove that job from the queue.</li>
-	<li>TaskExecutorService implemented the interface TaskExecutor. This class also defines a constructor with the input as size that defines the number of  threads executed concurrently with the help of FixedPoolExecutorService</li>
+	<li>In the TaskExecutorService class, created 2 instance variables
+		<ol>
+			<li> ConcurrentHashMap -> to control the concurrent submission of tasks from different task groups. </li>
+			<li> ExecutorService -> to execute the callable threads in asynchronous manner and to limit the usage of threads </li>
+		</ol>
+	</li>
+	<li> Submit task will create a callable child thread which in turn will call the Task action callable thread in synchronous manner i.e. directly calling call() of the Callable instance. </li>
+	</li> Once the task is submitted to executor service, future object is send to a new runnable thread for polling and this is to get the object as soon as possible.
 <ol>
